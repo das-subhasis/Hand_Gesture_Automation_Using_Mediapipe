@@ -42,6 +42,10 @@ def capture_video(source):
                     finger_status = hand_tracker.finger_check(hand_lm, landmarks_list,
                                                               handedness)  # store the status of each extended (Fingers standing up) fingers
 
+                    if hand_tracker.mute_status:
+                        cv2.putText(frame, f"Volume is muted ", (hand_tracker.FRAME_WIDTH - 200, 60),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+
                     if handedness == "Right":
 
                         # Cursor gesture
@@ -62,7 +66,10 @@ def capture_video(source):
 
             cv2.imshow('Video', frame)  # displays each frame
 
-            if cv2.waitKey(1) and 0xFF == ' ':
+            # Check for any key event
+            key = cv2.waitKey(1) & 0xFF
+
+            if key == ord('q') or key == 27:  # 'q' key or 'ESC' key
                 break
     except Exception as e:
         print("Error: ", e)

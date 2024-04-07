@@ -115,7 +115,7 @@ class HandTracker:
     def set_volume_range(self, frame, finger_status, landmarks_list):
         # Raise/ Lower Volume
 
-        if finger_status[0] and finger_status[1] and not finger_status[2] and not finger_status[3]:
+        if finger_status[0] and finger_status[1] and not finger_status[2] and not finger_status[3] and not finger_status[4]:
             x_1, y_1 = landmarks_list[4][0], landmarks_list[4][1]
             x_2, y_2 = landmarks_list[8][0], landmarks_list[8][1]
 
@@ -124,6 +124,26 @@ class HandTracker:
             dist = int(math.hypot(x_2 - x_1, y_2 - y_1))
 
             volumePercent = int(np.interp(dist, [30, 110], [0, 100]))
+            volumeBar = int(np.interp(dist, [30, 110], [400, 150]))
+
+            # Create a Level Bar for Volume
+            cv2.putText(frame, f"Volume Level : {volumePercent} %", (self.FRAME_WIDTH - 300, 120),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+
+            cv2.rectangle(frame, (self.FRAME_WIDTH - 50, 150), (self.FRAME_WIDTH - 80, 400), (255, 255, 0),
+                          3)
+
+            if volumePercent < 49:
+                cv2.rectangle(frame, (self.FRAME_WIDTH - 50, volumeBar), (self.FRAME_WIDTH - 80, 400), (0, 255, 0),
+                              cv2.FILLED)
+
+            elif 49 < volumePercent < 89:
+                cv2.rectangle(frame, (self.FRAME_WIDTH - 50, volumeBar), (self.FRAME_WIDTH - 80, 400), (0, 255, 255),
+                              cv2.FILLED)
+
+            elif volumePercent > 89:
+                cv2.rectangle(frame, (self.FRAME_WIDTH - 50, volumeBar), (self.FRAME_WIDTH - 80, 400), (0, 0, 255),
+                              cv2.FILLED)
 
             # print(volumePercent)
 
@@ -134,7 +154,7 @@ class HandTracker:
 
     def set_brightness(self, frame, finger_status, landmarks_list):
         # Raise/ Lower Brightness
-        if finger_status[0] and finger_status[2] and not finger_status[1] and not finger_status[3]:
+        if finger_status[0] and finger_status[2] and not finger_status[1] and not finger_status[3] and not finger_status[4]:
             x_1, y_1 = landmarks_list[4][0], landmarks_list[4][1]
             x_2, y_2 = landmarks_list[12][0], landmarks_list[12][1]
 
@@ -142,10 +162,31 @@ class HandTracker:
 
             dist = int(math.hypot(x_2 - x_1, y_2 - y_1))
 
+            brightness_level = int(np.interp(dist, [30, 110], [0, 100]))
+            brightnessBar = int(np.interp(dist, [30, 110], [400, 150]))
+
+            # Create a Level Bar for Brightness
+            cv2.putText(frame, f"Brightness Level : {brightness_level} %", (self.FRAME_WIDTH - 300, 120),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+
+            cv2.rectangle(frame, (self.FRAME_WIDTH - 50, 150), (self.FRAME_WIDTH - 80, 400), (255, 255, 0),
+                          3)
+
+            if brightness_level < 49:
+                cv2.rectangle(frame, (self.FRAME_WIDTH - 50, brightnessBar), (self.FRAME_WIDTH - 80, 400), (0, 255, 0),
+                              cv2.FILLED)
+
+            elif 49 < brightness_level < 89:
+                cv2.rectangle(frame, (self.FRAME_WIDTH - 50, brightnessBar), (self.FRAME_WIDTH - 80, 400),
+                              (0, 255, 255),
+                              cv2.FILLED)
+
+            elif brightness_level > 89:
+                cv2.rectangle(frame, (self.FRAME_WIDTH - 50, brightnessBar), (self.FRAME_WIDTH - 80, 400), (0, 0, 255),
+                              cv2.FILLED)
+
             cv2.circle(frame, (x_2, y_2), 7, (255, 0, 255), cv2.FILLED)
             cv2.circle(frame, (x_1, y_1), 7, (255, 0, 255), cv2.FILLED)
-
-            brightness_level = int(np.interp(dist, [30, 110], [0, 100]))
 
             sbc.set_brightness(brightness_level)
         return frame
